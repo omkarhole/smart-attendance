@@ -1066,6 +1066,59 @@ Content-Type: application/json
 
 ---
 
+### Rate Limiting
+
+The API implements rate limiting to prevent abuse and ensure fair usage. Rate limits are applied per IP address.
+
+| Endpoint | Limit | Description |
+|----------|-------|-------------|
+| `POST /auth/login` | 10 requests/minute | Login attempts per IP |
+| `POST /auth/register` | 5 requests/minute | Registration attempts per IP |
+| `POST /api/attendance/mark` | 30 requests/minute | Attendance marking per teacher |
+| All other endpoints | 100 requests/minute | Default limit per user |
+
+**Rate Limit Headers:**
+- `X-RateLimit-Limit`: Maximum requests allowed
+- `X-RateLimit-Remaining`: Remaining requests in current window
+- `X-RateLimit-Reset`: Unix timestamp when the limit resets
+- `Retry-After`: Seconds to wait before retrying (on 429 responses)
+
+**Error Response (HTTP 429):**
+```
+json
+{
+  "detail": "Rate limit exceeded: 10 per 1 minute",
+  "error_code": "RATE_LIMIT_EXCEEDED"
+}
+```
+
+### ML Service Authentication
+
+The ML Service (`/api/ml/*` endpoints) requires API key authentication via the `X-API-Key` header.
+
+```
+http
+GET /api/ml/encode-face
+X-API-Key: your-ml-service-api-key
+```
+
+**Error Response (HTTP 401):**
+```
+json
+{
+  "detail": "X-API-Key header is missing"
+}
+```
+or
+```
+json
+{
+  "detail": "Invalid API key"
+}
+```
+
+Configure the ML service API key using the `ML_API_KEY` environment variable.
+
 ## 📸 Screenshots
 
 ### Teacher Dashboard

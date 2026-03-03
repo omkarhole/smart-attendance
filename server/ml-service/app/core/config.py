@@ -24,7 +24,12 @@ class Settings(BaseSettings):
     ]
 
     LOG_LEVEL: str = "info"
-    API_KEY: str = "your-secret-api-key-here"
+    ML_API_KEY: str = "your-secret-api-key-here"
+
+    @property
+    def API_KEY(self) -> str:
+        """Backward compatibility property"""
+        return self.ML_API_KEY
 
     class Config:
         env_file = ".env"

@@ -57,7 +57,7 @@ oauth = OAuth()
 
 
 @router.post("/register", response_model=RegisterResponse)
-@limiter.limit("5/hour")
+@limiter.limit("5/minute")
 async def register(
     request: Request, payload: RegisterRequest, background_tasks: BackgroundTasks
 ):
@@ -184,7 +184,7 @@ async def register(
 
 
 @router.post("/login", response_model=UserResponse)
-@limiter.limit("5/minute")
+@limiter.limit("10/minute")
 async def login(request: Request, payload: LoginRequest):
     logger.info(f"Login request received for email: {payload.email}")
     email = payload.email

@@ -26,6 +26,9 @@ from app.services.attendance_socket_service import stop_and_save_session, sio
 from app.services.webauthn_service import verify_auth_response, get_rp_id
 from webauthn.helpers import parse_authentication_credential_json
 
+# Import rate limiter
+from app.core.limiter import limiter
+
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/attendance", tags=["Attendance"])
 
@@ -346,6 +349,7 @@ async def mark_attendance_qr(
 
 
 @router.post("/mark")
+@limiter.limit("30/minute")
 async def mark_attendance(request: Request, payload: Dict):
     """
     Mark attendance by detecting faces in classroom image
