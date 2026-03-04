@@ -770,6 +770,36 @@ smart-attendance/
 
 ## 📡 API Documentation
 
+## 🔄 API Versioning & Legacy Route Support
+
+This project uses versioned API routes under the `/api/v1` prefix.
+
+Example:
+
+POST /api/v1/auth/login
+
+### Backward Compatibility
+
+To ensure stability for existing clients, legacy routes are still supported without redirection.
+
+Example:
+
+POST /api/auth/login → internally handled as /api/v1/auth/login
+
+⚠️ Note:
+Redirect-based middleware was avoided because it interferes with CORS preflight (`OPTIONS`) requests in browsers.
+
+Instead of using HTTP redirects (301/302), legacy routes are explicitly mapped to the new versioned routes to prevent CORS issues and maintain compatibility.
+
+### Recommendation for Developers
+
+New integrations should always use the versioned routes:
+
+/api/v1/...
+
+Legacy routes may be removed in future major releases.
+
+
 ### Base URL
 
 ```text

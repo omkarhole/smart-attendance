@@ -456,10 +456,8 @@ toast.error(t('reports.export_failed'));
 )}
         </div>
       </div>
-<<<<<<< Updated upstream
- 
-=======
-    
->>>>>>> Stashed changes
+
+
+
   );
 }
