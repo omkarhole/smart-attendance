@@ -1,5 +1,5 @@
 // src/api/__tests__/auth.test.js
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { fetchCurrentUser } from '../auth'; 
 // We rely on MSW to mock the network requests.
 // Assuming axiosClient is used by fetchCurrentUser which in turn uses axios

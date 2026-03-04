@@ -68,7 +68,7 @@ async def lifespan(app: FastAPI):
     try:
         await ensure_attendance_daily_indexes()
         logger.info("attendance_daily indexes ensured")
-        
+
         await ensure_attendance_indexes()
         logger.info("attendance core indexes ensured")
 

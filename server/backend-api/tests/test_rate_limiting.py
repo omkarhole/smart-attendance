@@ -1,6 +1,7 @@
 """
 Test rate limiting on OTP endpoints to prevent brute force attacks.
 """
+
 import pytest
 from httpx import AsyncClient, ASGITransport
 from app.main import app
@@ -130,7 +131,7 @@ async def test_rate_limit_per_ip():
     # Create two clients with different IPs
     transport_ip1 = ASGITransport(app=app, client=("192.168.1.10", 12345))
     transport_ip2 = ASGITransport(app=app, client=("192.168.1.11", 12345))
-    
+
     async with AsyncClient(transport=transport_ip1, base_url="http://test") as client1:
         # Exhaust rate limit for IP1
         for i in range(3):

@@ -3,7 +3,7 @@ import { http, HttpResponse } from 'msw'
 export const handlers = [
   // Auth mock
   // Update patterns to match the actual client baseURL usage (/api/...)
-  http.post('*/auth/login', async ({ request }) => {
+  http.post('*/auth/login', async () => {
     return HttpResponse.json({
       access_token: 'mock-token-123',
       token_type: 'bearer',

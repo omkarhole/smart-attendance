@@ -760,7 +760,8 @@ async def confirm_attendance(payload: AttendanceConfirm):
         unique_present = set(str(s["studentId"]) for s in updated_logs_doc["students"])
         total_present_today = len(unique_present)
     else:
-        # Try fetch if logs exist but weren't updated in this call (e.g. only absent students sent)
+        # Try fetch if logs exist but weren't updated in this call
+        # (e.g. only absent students sent)
         existing_logs = await db.attendance_logs.find_one(
             {"subjectId": subject_oid, "date": today}
         )

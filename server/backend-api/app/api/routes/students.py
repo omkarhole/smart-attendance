@@ -134,7 +134,10 @@ async def upload_image_url(
     if len(image_bytes) > MAX_FILE_SIZE:
         raise HTTPException(
             status_code=413,
-            detail=f"Image too large. Maximum size is {MAX_FILE_SIZE // 1024 // 1024}MB",
+            detail=(
+                f"Image too large. Maximum size is "
+                f"{MAX_FILE_SIZE // 1024 // 1024}MB"
+            ),
         )
 
     # 3. Convert to base64 for ML service
@@ -168,11 +171,13 @@ async def upload_image_url(
                 ),
                 "NO_FACE_FOUND": (
                     400,
-                    "No face detected in the image. Please upload a clear photo of your face",
+                    "No face detected in the image. Please upload a clear photo of "
+                    "your face",
                 ),
                 "MULTIPLE_FACES_FOUND": (
                     400,
-                    "Multiple faces detected. Please upload a photo with only your face",
+                    "Multiple faces detected. Please upload a photo with only your "
+                    "face",
                 ),
             }
 

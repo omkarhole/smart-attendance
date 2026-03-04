@@ -1,3 +1,4 @@
+import base64
 from webauthn import (
     generate_registration_options,
     verify_registration_response,
@@ -61,7 +62,8 @@ async def generate_reg_options(
 
     # Store challenge as string (base64url)
     # options.challenge is bytes in newer versions of webauthn library?
-    # Actually generate_registration_options returns PublicKeyCredentialCreationOptions object.
+    # Actually generate_registration_options returns 
+    # PublicKeyCredentialCreationOptions object.
     # The challenge is bytes. We need to store it to verify later.
     # We can store the bytes directly if using pymongo binary, or base64 encode it.
     # The `verify_registration_response` expects bytes for `expected_challenge`.
@@ -103,7 +105,8 @@ async def verify_reg_response(
     # Process and encode credential data for storage
     import base64
 
-    # credential_id and credential_public_key are bytes, need to be stored as base64url strings
+    # credential_id and credential_public_key are bytes, need to be stored as
+    # base64url strings
     cred_id_b64 = (
         base64.urlsafe_b64encode(verification.credential_id).decode("ascii").rstrip("=")
     )
@@ -144,8 +147,10 @@ async def generate_auth_options(user: dict, rp_id: str):
                 # Convert transports if they exist
                 transports = []
                 if cred.get("transports"):
-                    # Webauthn expects AuthenticatorTransport enum if possible or strings
-                    # The library usually handles strings if passed to AuthenticatorTransport
+                    # Webauthn expects AuthenticatorTransport enum if possible or
+                    # strings
+                    # The library usually handles strings if passed to
+                    # AuthenticatorTransport
                     for t in cred.get("transports"):
                         try:
                             transports.append(AuthenticatorTransport(t))
@@ -165,7 +170,8 @@ async def generate_auth_options(user: dict, rp_id: str):
     if not allow_credentials:
         # If no credentials, we can't authenticate with specific credentials.
         # But maybe we want to allow resident keys?
-        # For this specific flow (attendance), the user is logged in, so we know who they are.
+        # For this specific flow (attendance), the user is logged in, so we know
+        # who they are.
         # We want to verify *their* registered authenticator.
         raise ValueError("No biometric credentials registered")
 
@@ -194,7 +200,9 @@ async def verify_auth_response(
     user: dict, response: AuthenticationCredential, origin: str, rp_id: str
 ):
     print(
-        f"DEBUG: Verifying user {user['_id']}. Challenge in DB: {user.get('current_challenge')} (type: {type(user.get('current_challenge'))})"
+        f"DEBUG: Verifying user {user['_id']}. Challenge in DB: "
+        f"{user.get('current_challenge')} "
+        f"(type: {type(user.get('current_challenge'))})"
     )
 
     expected_challenge = user.get("current_challenge")
@@ -204,7 +212,8 @@ async def verify_auth_response(
         fresh_user = await db.users.find_one({"_id": user["_id"]})
         if fresh_user:
             print(
-                f"DEBUG: Found challenge in fresh user fetch: {fresh_user.get('current_challenge')}"
+                f"DEBUG: Found challenge in fresh user fetch: "
+                f"{fresh_user.get('current_challenge')}"
             )
             expected_challenge = fresh_user.get("current_challenge")
             user = fresh_user  # update reference
@@ -264,9 +273,10 @@ async def verify_auth_response(
                 "webauthn_credentials.$.sign_count": verification.new_sign_count,
                 "current_challenge": "",
             }
-        },  # Clear challenge
+        },
     )
-    # Note: clearing challenge prevents replay but might cause issues if verification fails and we want to retry?
+    # Note: clearing challenge prevents replay but might cause issues if
+    # verification fails and we want to retry?
     # Standard practice is to generate new challenge on retry.
 
     return verification

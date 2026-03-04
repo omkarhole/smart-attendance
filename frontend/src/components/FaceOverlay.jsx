@@ -24,9 +24,8 @@ export default function FaceOverlay({ faces, videoRef, mirrored = false }) {
         return prev;
       });
     }
-  }); 
+  }, [videoRef]); 
   
-  if (!videoRef.current?.video) return null; // Safe guard
   const { width: videoWidth, height: videoHeight, displayWidth, displayHeight } = videoDimensions || {};
 
   if (!videoWidth) return null;

@@ -54,10 +54,12 @@ async def get_student_profile(user_id: str):
         "webauthn_credentials": [
             {
                 "credential_id": cred["credential_id"],
-                "created_at": cred["created_at"].isoformat() if cred.get("created_at") else None,
+                "created_at": cred["created_at"].isoformat()
+                if cred.get("created_at")
+                else None,
             }
             for cred in user.get("webauthn_credentials", [])
-        ]
+        ],
     }
 
     return profile
