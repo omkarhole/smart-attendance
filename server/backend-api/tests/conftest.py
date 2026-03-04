@@ -9,9 +9,15 @@ from datetime import datetime, timedelta, timezone
 from httpx import AsyncClient, ASGITransport
 from motor.motor_asyncio import AsyncIOMotorClient
 
+# Import the limiter to disable it during tests
+from app.core.limiter import limiter
+
 # Set environment variable BEFORE any app import
 os.environ["MONGO_DB_NAME"] = "test_smart_attendance"
 os.environ["JWT_SECRET"] = "test-secret-key-123"
+
+# Disable rate limiting for all tests
+limiter.enabled = False
 
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())

@@ -111,13 +111,21 @@ async def test_attendance_trend_invalid_class_id(
 ):
     """Test attendance trend with invalid classId"""
     teacher_id = ObjectId()
+    # Create a dummy subject so the teacher has subjects and we don't hit the empty subjects check
+    await db.subjects.insert_one(
+        {
+            "name": "Maths",
+            "code": "MATH101",
+            "professor_ids": [teacher_id],
+        }
+    )
     headers = teacher_token_header(str(teacher_id))
     response = await client.get(
         "/analytics/attendance-trend?classId=invalid&dateFrom=2024-01-01&dateTo=2024-12-31",
         headers=headers,
     )
     assert response.status_code == 400
-    assert "Invalid classId" in response.json()["detail"]
+    assert "Invalid classId format" in response.json()["detail"]
 
 
 @pytest.mark.asyncio
