@@ -3,7 +3,7 @@ import { http, HttpResponse } from 'msw'
 export const handlers = [
   // Auth mock
   // Update patterns to match the actual client baseURL usage (/api/...)
-  http.post('*/api/auth/login', async ({ request }) => {
+  http.post('*/auth/login', async ({ request }) => {
     return HttpResponse.json({
       access_token: 'mock-token-123',
       token_type: 'bearer',
@@ -16,7 +16,7 @@ export const handlers = [
     })
   }),
 
-  http.get('*/api/auth/me', () => {
+  http.get('*/auth/me', () => {
     return HttpResponse.json({
         id: 'user-123',
         email: 'test@example.com',
@@ -26,7 +26,7 @@ export const handlers = [
   }),
 
   // Attendance mock
-  http.post('*/api/attendance/mark', () => {
+  http.post('*/attendance/mark', () => {
     return HttpResponse.json({
         message: 'Attendance marked successfully',
         status: 'present',
@@ -35,7 +35,7 @@ export const handlers = [
     })
   }),
 
-  http.get('*/api/attendance/history', () => {
+  http.get('*/attendance/history', () => {
     return HttpResponse.json([
         {
             date: '2023-10-01',

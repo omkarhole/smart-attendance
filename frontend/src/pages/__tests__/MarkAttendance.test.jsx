@@ -4,8 +4,8 @@ import { MemoryRouter } from 'react-router-dom';
 import MarkAttendance from '../MarkAttendance';
 
 vi.mock('../../api/teacher', () => ({
-    fetchMySubjects: vi.fn(),
-    fetchSubjectStudents: vi.fn()
+    fetchMySubjects: vi.fn().mockResolvedValue([]),
+    fetchSubjectStudents: vi.fn().mockResolvedValue([])
 }));
 
 vi.mock('../../api/attendance', () => ({
