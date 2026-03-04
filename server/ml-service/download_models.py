@@ -65,7 +65,7 @@ def download_model():
                         tmp_target.unlink()
             except Exception as e:
                 print(f"❌ Failed to download from {url}: {e}")
-        
+
         if not success:
             print("❌ Failed to download BlazeFace model from any source.")
             return False

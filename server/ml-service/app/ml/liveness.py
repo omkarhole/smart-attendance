@@ -21,10 +21,11 @@ LIVENESS_FAIL_OPEN = os.getenv("LIVENESS_FAIL_OPEN", "false").lower() == "true"
 
 mp_face_mesh = mp.solutions.face_mesh
 
+
 def is_live(face_crop: np.ndarray) -> bool:
     """
     Check if the provided face crop represents a live person.
-    
+
     This function performs multiple checks to determine liveness:
     1. **Face Mesh Validation**: Uses MediaPipe Face Mesh to ensure a valid 3D face
        structure exists.
@@ -46,14 +47,14 @@ def is_live(face_crop: np.ndarray) -> bool:
 
     if face_crop is None or face_crop.size == 0:
         return False
-    
+
     # Ensure image is in RGB for MediaPipe
     rgb = cv2.cvtColor(face_crop, cv2.COLOR_BGR2RGB)
-    
+
     # --- Quality Checks ---
     gray = cv2.cvtColor(face_crop, cv2.COLOR_BGR2GRAY)
     variance = cv2.Laplacian(gray, cv2.CV_64F).var()
-    
+
     # Range check on Variance:
     # - Too low (<10): Likely solid color, extremely blurry, or flat mask.
     # - Too high (>800): Likely screen moiré, printed halftone, or excessive noise.
@@ -73,7 +74,7 @@ def is_live(face_crop: np.ndarray) -> bool:
 
     # Color Diversity Check
     (mean, std) = cv2.meanStdDev(face_crop)
-    avg_std = np.mean(std) 
+    avg_std = np.mean(std)
 
     if avg_std < LIVENESS_COLOR_MIN_STD:
         logger.warning(
@@ -91,21 +92,21 @@ def is_live(face_crop: np.ndarray) -> bool:
             static_image_mode=True,
             max_num_faces=1,
             refine_landmarks=True,
-            min_detection_confidence=0.5
+            min_detection_confidence=0.5,
         ) as face_mesh:
             results = face_mesh.process(rgb)
-            
+
             # If no landmarks detected, likely a spoof or bad crop
             if not results.multi_face_landmarks:
                 logger.warning("Spoof detected: No face mesh constructed.")
                 return False
-            
+
             # --- Future enhancements ---
             # 3. Z-Depth Variance (Mesh flatness check)
             # 4. Blink Integration (requires multi-frame)
-            
+
             return True
-            
+
     except Exception as e:
         logger.error(f"Liveness check failed: {e}")
         return True if LIVENESS_FAIL_OPEN else False

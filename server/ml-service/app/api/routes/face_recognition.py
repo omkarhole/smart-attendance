@@ -72,7 +72,7 @@ async def encode_face(request: EncodeFaceRequest):
             )
 
         top, right, bottom, left = faces[0]
-        
+
         face_w = right - left
         face_h = bottom - top
 
@@ -140,13 +140,13 @@ async def detect_faces_api(request: DetectFacesRequest):
             left = max(0, left)
             bottom = min(h, bottom)
             right = min(w, right)
-            
+
             face_img = image_np[top:bottom, left:right]
 
             # Liveness Check
             live = True
             if settings.ML_LIVENESS_CHECK:
-                 live = is_live(face_img)
+                live = is_live(face_img)
 
             embedding = get_face_embedding(face_img)
 
@@ -157,7 +157,7 @@ async def detect_faces_api(request: DetectFacesRequest):
                         top=top, right=right, bottom=bottom, left=left
                     ),
                     face_area_ratio=face_area / image_area,
-                    is_live=live
+                    is_live=live,
                 )
             )
 
