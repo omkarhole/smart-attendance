@@ -192,7 +192,9 @@ async def generate_auth_options(user: dict, rp_id: str):
     )
 
     logger.info(
-        "webauthn.setting_challenge", user_id=str(user["_id"]), challenge_present=bool(challenge_b64)
+        "webauthn.setting_challenge",
+        user_id=str(user["_id"]),
+        challenge_present=bool(challenge_b64),
     )
 
     await db.users.update_one(

@@ -22,7 +22,7 @@ def setup_logging(service_name: str = "ml-service"):
         # Add service name to all logs
         lambda _, __, event_dict: {**event_dict, "service": service_name},
 
-        # Add service name as a static field
+        # Add call-site info (file, function, line number) to all logs
         structlog.processors.CallsiteParameterAdder(
             {
                 structlog.processors.CallsiteParameter.FILENAME,
