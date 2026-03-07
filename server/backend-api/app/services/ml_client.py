@@ -15,7 +15,7 @@ class MLClient:
         # Create httpx client with connection pooling
         self.client = httpx.AsyncClient(
             base_url=self.base_url,
-            headers={"X-API-KEY": self.api_key},
+            headers={"X-API-Key": self.api_key},
             timeout=self.timeout,
             limits=httpx.Limits(max_keepalive_connections=5, max_connections=10),
         )

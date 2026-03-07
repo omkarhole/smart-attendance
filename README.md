@@ -1068,7 +1068,12 @@ Content-Type: application/json
 
 ### Rate Limiting
 
-The API implements rate limiting to prevent abuse and ensure fair usage. Rate limits are applied per IP address.
+The API implements rate limiting to prevent abuse and ensure fair usage.
+
+- `POST /auth/login`: 10 requests/minute per client IP
+- `POST /auth/register`: 5 requests/minute per client IP
+- `POST /api/attendance/mark`: 30 requests/minute per teacher (teacher ID from JWT)
+- All other endpoints: 100 requests/minute per authenticated user (fallback to IP for unauthenticated requests)
 
 | Endpoint | Limit | Description |
 |----------|-------|-------------|
@@ -1084,8 +1089,7 @@ The API implements rate limiting to prevent abuse and ensure fair usage. Rate li
 - `Retry-After`: Seconds to wait before retrying (on 429 responses)
 
 **Error Response (HTTP 429):**
-```
-json
+```json
 {
   "detail": "Rate limit exceeded: 10 per 1 minute",
   "error_code": "RATE_LIMIT_EXCEEDED"
@@ -1094,16 +1098,15 @@ json
 
 ### ML Service Authentication
 
-The ML Service (`/api/ml/*` endpoints) requires API key authentication via the `X-API-Key` header.
+All ML service routes require API key authentication via the `X-API-Key` header and validate it against the `ML_API_KEY` environment variable.
 
 ```http
-GET /api/ml/encode-face
+GET /health
 X-API-Key: your-ml-service-api-key
 ```
 
 **Error Response (HTTP 401):**
-```
-json
+```json
 {
   "detail": "X-API-Key header is missing"
 }

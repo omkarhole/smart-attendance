@@ -27,7 +27,7 @@ from app.services.webauthn_service import verify_auth_response, get_rp_id
 from webauthn.helpers import parse_authentication_credential_json
 
 # Import rate limiter
-from app.core.limiter import limiter
+from app.core.limiter import limiter, get_teacher_rate_limit_key
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/attendance", tags=["Attendance"])
@@ -353,7 +353,11 @@ async def mark_attendance_qr(
 
 
 @router.post("/mark")
-@limiter.limit(RATE_LIMIT_ATTENDANCE_MARK)
+@limiter.limit(
+    RATE_LIMIT_ATTENDANCE_MARK,
+    key_func=get_teacher_rate_limit_key,
+    override_defaults=True,
+)
 async def mark_attendance(request: Request, payload: Dict):
     """
     Mark attendance by detecting faces in classroom image
