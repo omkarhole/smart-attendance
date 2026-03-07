@@ -42,17 +42,20 @@ async def mark_attendance(attendance_payload: dict):
     try:
         # 1. Validate required fields
         required_fields = ["student_id", "class_id", "date", "period", "status"]
-        missing_fields = [f for f in required_fields if f not in attendance_payload]
+        payload = attendance_payload  # upstream uses 'payload', keeping it consistent
+        
+        missing_fields = [f for f in required_fields if f not in payload]
         if missing_fields:
             logger.warning("Invalid attendance input", missing_fields=missing_fields)
             raise ValueError(f"Missing required fields: {', '.join(missing_fields)}")
 
         # 2. Check for duplicate attendance
+        # Check if attendance already exists for this student, class, date, period
         duplicate_query = {
-            "student_id": attendance_payload["student_id"],
-            "class_id": attendance_payload["class_id"],
-            "date": attendance_payload["date"],
-            "period": attendance_payload["period"],
+            "student_id": payload["student_id"],
+            "class_id": payload["class_id"],
+            "date": payload["date"],
+            "period": payload["period"],
         }
 
         existing_record = await attendance_col.find_one(duplicate_query)
@@ -60,14 +63,14 @@ async def mark_attendance(attendance_payload: dict):
         if existing_record:
             logger.warning(
                 "Duplicate attendance attempt",
-                student_id=attendance_payload.get("student_id"),
-                class_id=attendance_payload.get("class_id"),
+                student_id=payload.get("student_id"),
+                class_id=payload.get("class_id"),
             )
             raise DuplicateKeyError("Attendance already marked")
 
         # 3. Create record
-        attendance_payload["created_at"] = datetime.now(timezone.utc).isoformat()
-        result = await attendance_col.insert_one(attendance_payload)
+        payload["created_at"] = datetime.now(timezone.utc).isoformat()
+        result = await attendance_col.insert_one(payload)
 
         attendance_record = await attendance_col.find_one({"_id": result.inserted_id})
         attendance_record["_id"] = str(attendance_record["_id"])
@@ -75,17 +78,18 @@ async def mark_attendance(attendance_payload: dict):
         logger.info(
             "Attendance marked successfully",
             attendance_id=attendance_record["_id"],
-            student_id=attendance_payload.get("student_id"),
+            student_id=payload.get("student_id"),
         )
 
         return attendance_record
 
     except (ValueError, TypeError) as e:
-        # Input validation error -> 400 Bad Request
-        # (or 422 per FastAPI norms, sticking to 400 for general checks)
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        logger.warning("Validation error in mark_attendance", error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(e)
+        )
     except DuplicateKeyError:
-        # Duplicate -> 409 Conflict
+        logger.warning("Duplicate attendance attempt", payload=attendance_payload)
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Attendance already marked for this period",
