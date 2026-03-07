@@ -43,7 +43,7 @@ async def mark_attendance(attendance_payload: dict):
         # 1. Validate required fields
         required_fields = ["student_id", "class_id", "date", "period", "status"]
         payload = attendance_payload  # upstream uses 'payload', keeping it consistent
-        
+
         missing_fields = [f for f in required_fields if f not in payload]
         if missing_fields:
             logger.warning("Invalid attendance input", missing_fields=missing_fields)
