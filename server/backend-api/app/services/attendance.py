@@ -28,13 +28,14 @@ async def ensure_indexes():
 async def mark_attendance(attendance_payload: dict):
     """
     Mark student attendance after validating input and checking for duplicates.
-    
+
     Args:
-        attendance_payload (dict): The attendance data containing student_id, class_id, etc.
-        
+        attendance_payload (dict): The attendance data containing student_id,
+            class_id, etc.
+
     Returns:
         dict: The created attendance record
-        
+
     Raises:
         HTTPException: If validation fails or duplicate exists
     """
@@ -51,41 +52,43 @@ async def mark_attendance(attendance_payload: dict):
             "student_id": attendance_payload["student_id"],
             "class_id": attendance_payload["class_id"],
             "date": attendance_payload["date"],
-            "period": attendance_payload["period"]
+            "period": attendance_payload["period"],
         }
-        
+
         existing_record = await attendance_col.find_one(duplicate_query)
 
         if existing_record:
-            logger.warning("Duplicate attendance attempt", 
-                          student_id=attendance_payload.get("student_id"),
-                          class_id=attendance_payload.get("class_id"))
+            logger.warning(
+                "Duplicate attendance attempt",
+                student_id=attendance_payload.get("student_id"),
+                class_id=attendance_payload.get("class_id"),
+            )
             raise DuplicateKeyError("Attendance already marked")
 
         # 3. Create record
         attendance_payload["created_at"] = datetime.now(timezone.utc).isoformat()
         result = await attendance_col.insert_one(attendance_payload)
-        
+
         attendance_record = await attendance_col.find_one({"_id": result.inserted_id})
         attendance_record["_id"] = str(attendance_record["_id"])
-        
-        logger.info("Attendance marked successfully", 
-                   attendance_id=attendance_record["_id"],
-                   student_id=attendance_payload.get("student_id"))
-                   
+
+        logger.info(
+            "Attendance marked successfully",
+            attendance_id=attendance_record["_id"],
+            student_id=attendance_payload.get("student_id"),
+        )
+
         return attendance_record
 
     except (ValueError, TypeError) as e:
-        # Input validation error -> 400 Bad Request (or 422 per FastAPI norms, sticking to 400 for general checks)
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        # Input validation error -> 400 Bad Request
+        # (or 422 per FastAPI norms, sticking to 400 for general checks)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except DuplicateKeyError:
         # Duplicate -> 409 Conflict
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Attendance already marked for this period"
+            detail="Attendance already marked for this period",
         )
     except Exception as e:
         logger.error("Error marking attendance", error=str(e))
