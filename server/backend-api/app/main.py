@@ -68,7 +68,8 @@ def parse_env_bool(env_name: str, default: str = "false") -> bool:
     if raw_value in {"false", "0", "no", "off"}:
         return False
     raise RuntimeError(
-        f"Invalid value for {env_name}: {raw_value!r}. Use true/false (or 1/0, yes/no, on/off)."
+        f"Invalid value for {env_name}: {raw_value!r}. "
+        "Use true/false (or 1/0, yes/no, on/off)."
     )
 
 
@@ -109,7 +110,15 @@ async def lifespan(app: FastAPI):
 def create_app() -> FastAPI:
     session_cookie_secure = parse_env_bool("SESSION_COOKIE_SECURE", "false")
     session_cookie_same_site = parse_session_same_site("lax")
-
+     # Warn if insecure session cookies are used outside of development.
+    environment = os.getenv("ENVIRONMENT", "development")
+    if not session_cookie_secure and environment.lower() not in ("development", "dev", "local"):
+        logger.warning(
+            "SESSION_COOKIE_SECURE is false while ENVIRONMENT=%s; "
+            "session cookies will not be marked Secure. "
+            "This is unsafe for production deployments.",
+            environment,
+        )
     # Browsers reject SameSite=None cookies unless they are also marked Secure.
     if session_cookie_same_site == "none" and not session_cookie_secure:
         raise RuntimeError(
