@@ -1,5 +1,5 @@
-import logging
 import os
+import structlog
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 from fastapi import FastAPI
@@ -43,9 +43,8 @@ from app.core.limiter import limiter, rate_limit_exceeded_handler
 
 load_dotenv()
 
-# Setup structured logging
-setup_logging()
-logger = logging.getLogger(APP_NAME)
+setup_logging(service_name="backend-api")
+logger = structlog.get_logger()
 
 if SENTRY_DSN := os.getenv("SENTRY_DSN"):
     sentry_sdk.init(
